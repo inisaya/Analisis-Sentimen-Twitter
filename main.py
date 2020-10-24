@@ -26,6 +26,23 @@ def sequences_tweet(encode_text, max_kata):
     x = pad_sequences(encode_text, maxlen=max_kata, padding="post")
     return x
 
+def model(vocab, vec_size, max_kata, x_train, y_train, x_test, y_test, ex):
+    model = Sequential()
+    model.add(Embedding(vocab, vec_size, input_length=max_kata))
+    model.add(Conv1D(64, 8, activation='relu'))
+    model.add(MaxPool1D(2))
+    model.add(Dropout(0.5))
+
+    model.add(Dense(32, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(16, activation='relu'))
+    model.add(GlobalMaxPool1D())
+    model.add(Dense(3, activation='softmax'))
+    model.summary()
+    model.compile(optimizer='adam',
+                  loss='categorical_crossentropy', metrics=['accuracy'])
+    model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+    return model.predict_classes(ex)
 
 def train_dataset(x, y):
     x_train, x_test, y_train, y_test = train_test_split(
